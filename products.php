@@ -1,4 +1,5 @@
 <?php
+
 /**
  * ============================================================
  * TODO 1: CONFIGURATION INITIALE
@@ -15,8 +16,13 @@
  */
 
 // Votre code ici...
+require_once "config/db_mysqli.php";
 
+$error = "";
+$seccess = "";
 
+$editMode = '';
+$editProduct = '';
 
 
 /**
@@ -36,8 +42,16 @@
  */
 
 // Votre code ici...
-
-
+$id = $_POST['id'] ?? 0;
+function delete()
+{
+    global $conn;
+    $sql = "DELETE FROM shop_db WHERE id = ?";
+    $stmt = mysqli_prepare($conn, $sql);
+    mysqli_stmt_bind_param($stmt, "i", $id);
+    mysqli_stmt_execute($stmt);
+    mysqli_stmt_close($stmt);
+}
 
 
 /**
@@ -58,7 +72,24 @@
  */
 
 // Votre code ici...
-
+function ajout()
+{
+    global $conn;
+    if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+        $name = $_POST['name'];
+        $description = $_POST['description'];
+        $price = $_POST['price'];
+        $quantity = $_POST['quantity'];
+        $sql = "INSERT INTO shop_db (name, description, price, quantity) VALUES (?, ?, ?, ?)";
+        $stmt = mysqli_prepare($conn, $sql);
+        mysqli_stmt_bind_param($stmt, "ssis", $name, $description, $price, $quantity);
+        mysqli_stmt_execute($stmt);
+        $newId = mysqli_insert_id($conn);
+        mysqli_stmt_close($stmt);
+        header('Location: products.php');
+        exit;
+    }
+}
 
 
 
@@ -78,6 +109,12 @@
 
 // Votre code ici...
 
+function edit()
+{
+    // if(){
+
+    // }
+}
 
 
 
@@ -101,6 +138,7 @@
 ?>
 <!DOCTYPE html>
 <html lang="fr">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -108,15 +146,39 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
     <style>
-        body { background-color: #f8f9fa; }
-        .card { border: none; box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075); }
-        .table th { background-color: #e9ecef; }
-        .btn-action { padding: 0.25rem 0.5rem; font-size: 0.875rem; }
-        .price { font-weight: 600; color: #198754; }
-        .stock-low { color: #dc3545; }
-        .stock-ok { color: #198754; }
+        body {
+            background-color: #f8f9fa;
+        }
+
+        .card {
+            border: none;
+            box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+        }
+
+        .table th {
+            background-color: #e9ecef;
+        }
+
+        .btn-action {
+            padding: 0.25rem 0.5rem;
+            font-size: 0.875rem;
+        }
+
+        .price {
+            font-weight: 600;
+            color: #198754;
+        }
+
+        .stock-low {
+            color: #dc3545;
+        }
+
+        .stock-ok {
+            color: #198754;
+        }
     </style>
 </head>
+
 <body>
     <!-- Header -->
     <nav class="navbar navbar-dark bg-primary mb-4">
@@ -138,7 +200,7 @@
                         Ajouter un produit
                     </div>
                     <div class="card-body">
-                        
+
                         <!-- ============================================= -->
                         <!-- TODO 6: AFFICHER LES MESSAGES                 -->
                         <!-- ============================================= -->
@@ -151,10 +213,18 @@
                         <div class="alert alert-danger">Message d'erreur</div>
                         <div class="alert alert-success">Message de succès</div>
                         -->
-                        
+
                         <!-- Votre code PHP ici... -->
-                        
-                        
+                        <?php
+                        if ($error) {
+                            echo '<div class="alert alert-danger">Message derreur</div>';
+                        }
+                        if ($seccess) {
+                            echo '<div class="alert alert-success">Message de succès</div>';
+                        }
+                        ?>
+
+
                         <form method="POST" action="products.php">
                             <!-- ============================================= -->
                             <!-- TODO 7: CHAMP CACHÉ POUR L'ID EN MODE ÉDITION -->
@@ -166,65 +236,65 @@
                             Exemple:
                             <input type="hidden" name="id" value="<?php echo $editProduct['id']; ?>">
                             -->
-                            
+
                             <!-- Votre code PHP ici... -->
-                            
-                            
+
+
                             <div class="mb-3">
                                 <label for="name" class="form-label">
                                     Nom du produit <span class="text-danger">*</span>
                                 </label>
-                                <input type="text" 
-                                       class="form-control" 
-                                       id="name" 
-                                       name="name" 
-                                       placeholder="Ex: iPhone 15"
-                                       value="<?php /* TODO: En mode édition, afficher $editProduct['name'] */ ?>"
-                                       required>
+                                <input type="text"
+                                    class="form-control"
+                                    id="name"
+                                    name="name"
+                                    placeholder="Ex: iPhone 15"
+                                    value="<?php /* TODO: En mode édition, afficher $editProduct['name'] */ ?>"
+                                    required>
                             </div>
-                            
+
                             <div class="mb-3">
                                 <label for="description" class="form-label">Description</label>
-                                <textarea class="form-control" 
-                                          id="description" 
-                                          name="description" 
-                                          rows="3"
-                                          placeholder="Description du produit..."><?php /* TODO: En mode édition, afficher $editProduct['description'] */ ?></textarea>
+                                <textarea class="form-control"
+                                    id="description"
+                                    name="description"
+                                    rows="3"
+                                    placeholder="Description du produit..."><?php /* TODO: En mode édition, afficher $editProduct['description'] */ ?></textarea>
                             </div>
-                            
+
                             <div class="mb-3">
                                 <label for="price" class="form-label">
                                     Prix (€) <span class="text-danger">*</span>
                                 </label>
-                                <input type="number" 
-                                       class="form-control" 
-                                       id="price" 
-                                       name="price" 
-                                       step="0.01" 
-                                       min="0"
-                                       placeholder="Ex: 99.99"
-                                       value="<?php /* TODO: En mode édition, afficher $editProduct['price'] */ ?>"
-                                       required>
+                                <input type="number"
+                                    class="form-control"
+                                    id="price"
+                                    name="price"
+                                    step="0.01"
+                                    min="0"
+                                    placeholder="Ex: 99.99"
+                                    value="<?php /* TODO: En mode édition, afficher $editProduct['price'] */ ?>"
+                                    required>
                             </div>
-                            
+
                             <div class="mb-3">
                                 <label for="quantity" class="form-label">Quantité en stock</label>
-                                <input type="number" 
-                                       class="form-control" 
-                                       id="quantity" 
-                                       name="quantity" 
-                                       min="0"
-                                       placeholder="Ex: 50"
-                                       value="<?php /* TODO: En mode édition, afficher $editProduct['quantity'], sinon 0 */ ?>">
+                                <input type="number"
+                                    class="form-control"
+                                    id="quantity"
+                                    name="quantity"
+                                    min="0"
+                                    placeholder="Ex: 50"
+                                    value="<?php /* TODO: En mode édition, afficher $editProduct['quantity'], sinon 0 */ ?>">
                             </div>
-                            
+
                             <div class="d-grid gap-2">
                                 <button type="submit" class="btn btn-primary">
                                     <i class="bi bi-check-lg"></i>
                                     <!-- TODO: Afficher "Modifier" si en mode édition, sinon "Ajouter" -->
                                     Enregistrer
                                 </button>
-                                
+
                                 <!-- TODO: En mode édition, afficher un bouton "Annuler" qui redirige vers products.php -->
                                 <!-- 
                                 <?php if ($editMode): ?>
@@ -238,7 +308,7 @@
                     </div>
                 </div>
             </div>
-            
+
             <!-- Colonne Liste des Produits -->
             <div class="col-md-8">
                 <div class="card">
@@ -276,7 +346,22 @@
                                     
                                     Si aucun produit, affichez un message "Aucun produit trouvé"
                                     -->
-                                    
+
+                                    <?php
+                                    $sql = "SELECT * FROM shop_db WHERE id = ?";
+                                    $stmt = mysqli_prepare($conn, $sql);
+                                    mysqli_stmt_bind_param($stmt, "i", $id);
+                                    mysqli_stmt_execute($stmt);
+                                    $result = mysqli_stmt_get_result($stmt);
+                                    $array_of_data = mysqli_fetch_assoc($result);
+
+                                    foreach ($array_of_data as $key => $value) {
+                                        echo ""
+                                    }
+
+
+                                    ?>
+
                                     <!-- EXEMPLE D'UNE LIGNE (à remplacer par la boucle PHP) -->
                                     <tr>
                                         <td>1</td>
@@ -293,32 +378,32 @@
                                         </td>
                                         <td><small>2025-01-15</small></td>
                                         <td class="text-center">
-                                            <a href="products.php?edit=1&id=1" 
-                                               class="btn btn-warning btn-action">
+                                            <a href="products.php?edit=1&id=1"
+                                                class="btn btn-warning btn-action">
                                                 <i class="bi bi-pencil"></i>
                                             </a>
-                                            <a href="products.php?action=delete&id=1" 
-                                               class="btn btn-danger btn-action"
-                                               onclick="return confirm('Supprimer ce produit ?')">
+                                            <a href="products.php?action=delete&id=1"
+                                                class="btn btn-danger btn-action"
+                                                onclick="return confirm('Supprimer ce produit ?')">
                                                 <i class="bi bi-trash"></i>
                                             </a>
                                         </td>
                                     </tr>
                                     <!-- FIN DE L'EXEMPLE -->
-                                    
+
                                     <!-- Votre boucle PHP ici... -->
-                                    
+
                                 </tbody>
                             </table>
                         </div>
                     </div>
                 </div>
-                
+
                 <!-- Aide visuelle pour le stock -->
                 <div class="mt-3 text-muted small">
-                    <i class="bi bi-info-circle"></i> 
-                    Légende stock: 
-                    <span class="stock-ok"><i class="bi bi-check-circle"></i> > 10</span> | 
+                    <i class="bi bi-info-circle"></i>
+                    Légende stock:
+                    <span class="stock-ok"><i class="bi bi-check-circle"></i> > 10</span> |
                     <span class="stock-low"><i class="bi bi-exclamation-circle"></i> ≤ 10</span>
                 </div>
             </div>
@@ -327,4 +412,5 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
+
 </html>
