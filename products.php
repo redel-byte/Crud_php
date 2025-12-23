@@ -354,42 +354,37 @@ function edit()
                                     mysqli_stmt_execute($stmt);
                                     $result = mysqli_stmt_get_result($stmt);
                                     $array_of_data = mysqli_fetch_assoc($result);
-
-                                    foreach ($array_of_data as $key => $value) {
-                                        echo ""
-                                    }
-
-
                                     ?>
-
-                                    <!-- EXEMPLE D'UNE LIGNE (à remplacer par la boucle PHP) -->
-                                    <tr>
-                                        <td>1</td>
-                                        <td>
-                                            <strong>iPhone 15</strong>
-                                            <br>
-                                            <small class="text-muted">Smartphone Apple dernière génération</small>
-                                        </td>
-                                        <td class="price">999.99 €</td>
-                                        <td>
-                                            <span class="stock-ok">
-                                                <i class="bi bi-check-circle"></i> 25
-                                            </span>
-                                        </td>
-                                        <td><small>2025-01-15</small></td>
-                                        <td class="text-center">
-                                            <a href="products.php?edit=1&id=1"
-                                                class="btn btn-warning btn-action">
-                                                <i class="bi bi-pencil"></i>
-                                            </a>
-                                            <a href="products.php?action=delete&id=1"
-                                                class="btn btn-danger btn-action"
-                                                onclick="return confirm('Supprimer ce produit ?')">
-                                                <i class="bi bi-trash"></i>
-                                            </a>
-                                        </td>
-                                    </tr>
-                                    <!-- FIN DE L'EXEMPLE -->
+                                    <?php foreach ($array_of_data as $key => $value): ?>
+                                        <!-- EXEMPLE D'UNE LIGNE (à remplacer par la boucle PHP) -->
+                                        <tr>
+                                            <td>1</td>
+                                            <td>
+                                                <strong>iPhone 15</strong>
+                                                <br>
+                                                <small class="text-muted">Smartphone Apple dernière génération</small>
+                                            </td>
+                                            <td class="price">999.99 €</td>
+                                            <td>
+                                                <span class="stock-ok">
+                                                    <i class="bi bi-check-circle"></i> 25
+                                                </span>
+                                            </td>
+                                            <td><small>2025-01-15</small></td>
+                                            <td class="text-center">
+                                                <a href="products.php?edit=1&id=1"
+                                                    class="btn btn-warning btn-action">
+                                                    <i class="bi bi-pencil"></i>
+                                                </a>
+                                                <a href="products.php?action=delete&id=1"
+                                                    class="btn btn-danger btn-action"
+                                                    onclick="return confirm('Supprimer ce produit ?')">
+                                                    <i class="bi bi-trash"></i>
+                                                </a>
+                                            </td>
+                                        </tr>
+                                        <!-- FIN DE L'EXEMPLE -->
+                                    <?php endforeach ?>
 
                                     <!-- Votre boucle PHP ici... -->
 
